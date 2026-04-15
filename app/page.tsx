@@ -1,10 +1,4 @@
-
-                  <textarea placeholder="Extra order note" style={{ ...input, minHeight: 120 }} />
-                  <a href={whatsappLink} target="_blank" style={{ ...blackButton, display: 'inline-block', textDecoration: 'none' }}>Place Order on WhatsApp</a>
-                </div>
-                <div style={box}>
-                  <h3>Order Summary</h3>
-                  {cart.length === 0 ? <p>No items in cart yet.</p> : cart.map((item) => (
+'use client';
                     <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                       <span>{item.name} x{item.quantity}</span>
                       <span>{formatPrice(item.price * item.quantity)}</span>
