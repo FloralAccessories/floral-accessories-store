@@ -21,7 +21,7 @@ const WHATSAPP_NUMBER = '2348034485846';
 
 // PASTE YOUR LOGO / BANNER IMAGE URL HERE
 const HERO_IMAGE =
-  'PASTE_YOUR_IMAGE_URL_HERE';
+  https://fbqgvzdeybxbxvoiktzp.supabase.co/storage/v1/object/public/products/Screenshot%202026-04-15%20202704.png;
 
 export default function Page() {
   const [products, setProducts] = useState<Product[]>([]);
