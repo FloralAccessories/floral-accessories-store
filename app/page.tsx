@@ -1,344 +1,94 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { useEffect, useState } from "react";
 
-type Product = {
-  id: number;
-  name: string;
-  price: number;
-  category: string;
-  image_url: string;
-  description: string;
-  in_stock: boolean;
-};
-
-const WHATSAPP_NUMBER = '2348034485846';
-
-export default function Page() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [search, setSearch] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('All');
-  const [loading, setLoading] = useState(true);
+export default function Home() {
+  const [products, setProducts] = useState<any[]>([]);
 
   useEffect(() => {
-    fetchProducts();
+    fetch("/api/products")
+      .then((res) => res.json())
+      .then((data) => setProducts(data));
   }, []);
 
-  async function fetchProducts() {
-    setLoading(true);
-
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .order('id', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching products:', error.message);
-      setProducts([]);
-      setLoading(false);
-      return;
-    }
-
-    setProducts(data || []);
-    setLoading(false);
-  }
-
-  const categories = useMemo(() => {
-    return ['All', ...new Set(products.map((product) => product.category).filter(Boolean))];
-  }, [products]);
-
-  const visibleProducts = useMemo(() => {
-    return products.filter((product) => {
-      const matchesSearch = product.name
-        ?.toLowerCase()
-        .includes(search.toLowerCase());
-
-      const matchesCategory =
-        categoryFilter === 'All' || product.category === categoryFilter;
-
-      return matchesSearch && matchesCategory && product.in_stock;
-    });
-  }, [products, search, categoryFilter]);
-
-  function formatPrice(price: number) {
-    return `₦${Number(price).toLocaleString()}`;
-  }
-
-  function getWhatsAppLink(product: Product) {
-    const message = `Hello FLORAL ACCESSORIES, I want to order ${product.name} for ${formatPrice(product.price)}.`;
-    return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
-  }
-
   return (
-    <main
-      style={{
-        minHeight: '100vh',
-        background: '#fffaf5',
-        color: '#111827',
-        fontFamily: 'Arial, sans-serif',
-      }}
-    >
-      <section
-        style={{
-          maxWidth: 1200,
-          margin: '0 auto',
-          padding: '70px 20px 40px',
-        }}
-      >
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1.1fr 1fr',
-            gap: 30,
-            alignItems: 'center',
-          }}
-        >
-          <div>
-            <p
-              style={{
-                textTransform: 'uppercase',
-                letterSpacing: 2,
-                color: '#9ca3af',
-                fontSize: 13,
-                marginBottom: 10,
-              }}
-            >
-              Floral Accessories
-            </p>
+    <div className="bg-[#faf9f7] text-[#1a1a1a]">
+      
+      {/* HERO SECTION */}
+      <section className="flex flex-col md:flex-row items-center justify-between px-6 md:px-20 py-20">
+        
+        <div className="max-w-xl">
+          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
+            Timeless Jewelry <br /> for Every Moment ✨
+          </h1>
 
-            <h1
-              style={{
-                fontSize: 54,
-                lineHeight: 1.1,
-                margin: '0 0 16px',
-              }}
-            >
-              Jewelry that makes every outfit shine
-            </h1>
-
-            <p
-              style={{
-                fontSize: 18,
-                lineHeight: 1.7,
-                color: '#4b5563',
-                maxWidth: 540,
-                marginBottom: 24,
-              }}
-            >
-              Discover elegant bracelets, necklaces, earrings, watches, rings, and
-              chains for your everyday style and special moments.
-            </p>
-
-            <a
-              href="#collection"
-              style={{
-                display: 'inline-block',
-                background: '#111111',
-                color: 'white',
-                borderRadius: 16,
-                padding: '14px 22px',
-                fontWeight: 700,
-                textDecoration: 'none',
-              }}
-            >
-              Shop Collection
-            </a>
-          </div>
-
-          <img
-            src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1200&q=80"
-            alt="Jewelry display"
-            style={{
-              width: '100%',
-              height: 430,
-              objectFit: 'cover',
-              borderRadius: 28,
-              boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
-            }}
-          />
-        </div>
-      </section>
-
-      <section
-        id="collection"
-        style={{
-          maxWidth: 1200,
-          margin: '0 auto',
-          padding: '10px 20px 70px',
-        }}
-      >
-        <div style={{ marginBottom: 24 }}>
-          <p
-            style={{
-              textTransform: 'uppercase',
-              letterSpacing: 2,
-              color: '#9ca3af',
-              fontSize: 13,
-              marginBottom: 8,
-            }}
-          >
-            Shop now
+          <p className="text-lg text-gray-600 mb-6">
+            Discover elegant bracelets, necklaces, rings, and watches crafted to elevate your everyday style.
           </p>
 
-          <h2 style={{ fontSize: 34, margin: 0 }}>Our Collection</h2>
+          <a
+            href="#collection"
+            className="bg-black text-white px-6 py-3 rounded-full text-sm hover:bg-gray-800 transition"
+          >
+            Shop Collection
+          </a>
         </div>
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 220px',
-            gap: 14,
-            marginBottom: 28,
-          }}
-        >
-          <input
-            type="text"
-            placeholder="Search product name"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '14px 16px',
-              border: '1px solid #d1d5db',
-              borderRadius: 16,
-              fontSize: 15,
-              boxSizing: 'border-box',
-            }}
-          />
+        <img
+          src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a"
+          className="w-full md:w-[500px] rounded-2xl shadow-lg mt-10 md:mt-0"
+        />
+      </section>
 
-          <select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '14px 16px',
-              border: '1px solid #d1d5db',
-              borderRadius: 16,
-              fontSize: 15,
-              background: 'white',
-            }}
-          >
-            {categories.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
-        </div>
+      {/* FEATURED STRIP */}
+      <section className="grid grid-cols-2 md:grid-cols-4 gap-4 px-6 md:px-20 pb-16">
+        {[
+          "https://images.unsplash.com/photo-1589128777073-263566ae5e4d",
+          "https://images.unsplash.com/photo-1601121141461-9d6647bca1ed",
+          "https://images.unsplash.com/photo-1617038220319-276d3cfab638",
+          "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f",
+        ].map((img, i) => (
+          <img key={i} src={img} className="rounded-xl shadow-md" />
+        ))}
+      </section>
 
-        {loading ? (
-          <div
-            style={{
-              background: 'white',
-              border: '1px dashed #d1d5db',
-              borderRadius: 24,
-              padding: 36,
-              textAlign: 'center',
-            }}
-          >
-            <p style={{ margin: 0, color: '#6b7280' }}>Loading products...</p>
-          </div>
-        ) : visibleProducts.length === 0 ? (
-          <div
-            style={{
-              background: 'white',
-              border: '1px dashed #d1d5db',
-              borderRadius: 24,
-              padding: 36,
-              textAlign: 'center',
-            }}
-          >
-            <h3 style={{ marginTop: 0, marginBottom: 10 }}>No products yet</h3>
-            <p style={{ margin: 0, color: '#6b7280' }}>
-              Add products in your Supabase table and they will show here.
-            </p>
-          </div>
+      {/* COLLECTION */}
+      <section id="collection" className="px-6 md:px-20 pb-20">
+        <h2 className="text-3xl font-semibold mb-10">Our Collection</h2>
+
+        {products.length === 0 ? (
+          <p className="text-gray-500">No products yet.</p>
         ) : (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
-              gap: 20,
-            }}
-          >
-            {visibleProducts.map((product) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {products.map((product) => (
               <div
                 key={product.id}
-                style={{
-                  background: 'white',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: 24,
-                  overflow: 'hidden',
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.05)',
-                }}
+                className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition"
               >
                 <img
-                  src={
-                    product.image_url ||
-                    'https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?auto=format&fit=crop&w=800&q=80'
-                  }
-                  alt={product.name}
-                  style={{
-                    width: '100%',
-                    height: 260,
-                    objectFit: 'cover',
-                  }}
+                  src={product.image}
+                  className="w-full h-64 object-cover"
                 />
 
-                <div style={{ padding: 18 }}>
-                  <p
-                    style={{
-                      color: '#9ca3af',
-                      textTransform: 'uppercase',
-                      fontSize: 12,
-                      margin: '0 0 8px',
-                    }}
-                  >
+                <div className="p-5">
+                  <h3 className="text-lg font-semibold">
+                    {product.name}
+                  </h3>
+
+                  <p className="text-gray-500 text-sm mb-2">
                     {product.category}
                   </p>
 
-                  <h3 style={{ margin: '0 0 10px' }}>{product.name}</h3>
-
-                  <p
-                    style={{
-                      color: '#6b7280',
-                      minHeight: 42,
-                      margin: '0 0 12px',
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    {product.description || 'Beautiful accessory for your style.'}
-                  </p>
-
-                  <p
-                    style={{
-                      fontWeight: 700,
-                      fontSize: 18,
-                      margin: '0 0 14px',
-                    }}
-                  >
-                    {formatPrice(product.price)}
+                  <p className="font-bold text-xl mb-4">
+                    ₦{product.price}
                   </p>
 
                   <a
-                    href={getWhatsAppLink(product)}
+                    href={`https://wa.me/234XXXXXXXXXX?text=Hi, I want to order ${product.name}`}
                     target="_blank"
-                    rel="noreferrer"
-                    style={{
-                      display: 'inline-block',
-                      width: '100%',
-                      textAlign: 'center',
-                      background: '#111111',
-                      color: 'white',
-                      borderRadius: 14,
-                      padding: '12px 14px',
-                      fontWeight: 700,
-                      textDecoration: 'none',
-                      boxSizing: 'border-box',
-                    }}
+                    className="block text-center bg-black text-white py-2 rounded-full hover:bg-gray-800"
                   >
-                    Order Now on WhatsApp
+                    Order on WhatsApp
                   </a>
                 </div>
               </div>
@@ -346,6 +96,21 @@ export default function Page() {
           </div>
         )}
       </section>
-    </main>
+
+      {/* BANNER */}
+      <section className="bg-black text-white text-center py-16 px-6">
+        <h2 className="text-3xl font-bold mb-4">
+          Shine Every Day ✨
+        </h2>
+        <p className="text-gray-300">
+          Luxury jewelry that speaks confidence and elegance.
+        </p>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="text-center text-sm text-gray-500 py-6">
+        © 2026 Floral Accessories. All rights reserved.
+      </footer>
+    </div>
   );
 }
