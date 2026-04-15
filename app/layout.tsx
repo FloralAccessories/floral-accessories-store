@@ -1,14 +1,12 @@
 export const metadata = {
   title: 'FLORAL ACCESSORIES',
-  description: 'Jewelry store with owner dashboard',
+  description: 'Jewelry store',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body style={{ margin: 0, fontFamily: 'Arial, sans-serif', background: '#fffdf9', color: '#111827' }}>
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
