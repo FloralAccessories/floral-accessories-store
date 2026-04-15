@@ -17,8 +17,6 @@ setProducts(data || []);
 
 return (
 <main style={{ padding: 20 }}> <h1>Floral Accessories Store</h1>
-
-```
   {products.length === 0 ? (
     <p>No products yet.</p>
   ) : (
@@ -31,7 +29,5 @@ return (
     </div>
   )}
 </main>
-```
-
 );
 }
