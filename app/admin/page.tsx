@@ -21,6 +21,8 @@ export default function AdminPage() {
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
   useEffect(() => {
     fetchProducts();
@@ -37,38 +39,87 @@ export default function AdminPage() {
     }
   }
 
-  async function addProduct() {
-    setLoading(true);
-
-    const { error } = await supabase.from('products').insert([
-      {
-        name,
-        price: Number(price),
-        category,
-        image_url: image,
-        description,
-        in_stock: true,
-      },
-    ]);
-
-    setLoading(false);
-
-    if (error) {
-      alert('Error adding product: ' + error.message);
-      return;
-    }
-
-    alert('Product added successfully!');
-
+  function resetForm() {
     setName('');
     setPrice('');
     setCategory('');
     setImage('');
     setDescription('');
+    setEditingId(null);
+  }
+
+  async function saveProduct() {
+    setLoading(true);
+
+    if (!name || !price || !category) {
+      alert('Please fill product name, price, and category.');
+      setLoading(false);
+      return;
+    }
+
+    if (editingId !== null) {
+      const { error } = await supabase
+        .from('products')
+        .update({
+          name,
+          price: Number(price),
+          category,
+          image_url: image,
+          description,
+          in_stock: true,
+        })
+        .eq('id', editingId);
+
+      setLoading(false);
+
+      if (error) {
+        alert('Error updating product: ' + error.message);
+        return;
+      }
+
+      alert('Product updated successfully!');
+    } else {
+      const { error } = await supabase.from('products').insert([
+        {
+          name,
+          price: Number(price),
+          category,
+          image_url: image,
+          description,
+          in_stock: true,
+        },
+      ]);
+
+      setLoading(false);
+
+      if (error) {
+        alert('Error adding product: ' + error.message);
+        return;
+      }
+
+      alert('Product added successfully!');
+    }
+
+    resetForm();
     fetchProducts();
   }
 
+  function startEdit(product: Product) {
+    setName(product.name || '');
+    setPrice(String(product.price || ''));
+    setCategory(product.category || '');
+    setImage(product.image_url || '');
+    setDescription(product.description || '');
+    setEditingId(product.id);
+    setOpenMenuId(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   async function deleteProduct(id: number) {
+    const confirmed = window.confirm('Are you sure you want to delete this product?');
+
+    if (!confirmed) return;
+
     const { error } = await supabase.from('products').delete().eq('id', id);
 
     if (error) {
@@ -77,94 +128,194 @@ export default function AdminPage() {
     }
 
     alert('Product deleted successfully!');
+    setOpenMenuId(null);
+
+    if (editingId === id) {
+      resetForm();
+    }
+
     fetchProducts();
   }
 
   return (
-    <main style={{ padding: 40, maxWidth: 900, margin: '0 auto', fontFamily: 'Arial, sans-serif' }}>
-      <h1>Add Product</h1>
+    <main
+      style={{
+        padding: 24,
+        maxWidth: 1000,
+        margin: '0 auto',
+        fontFamily: 'Arial, sans-serif',
+        color: '#111827',
+      }}
+    >
+      <div
+        style={{
+          background: 'white',
+          border: '1px solid #e5e7eb',
+          borderRadius: 18,
+          padding: 20,
+          boxShadow: '0 6px 20px rgba(0,0,0,0.04)',
+          marginBottom: 28,
+        }}
+      >
+        <h1 style={{ marginTop: 0, marginBottom: 8 }}>
+          {editingId !== null ? 'Edit Product' : 'Add Product'}
+        </h1>
 
-      <input
-        placeholder="Product Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        style={inputStyle}
-      />
+        <p style={{ color: '#6b7280', marginTop: 0, marginBottom: 20 }}>
+          Add new products or update existing ones for your store.
+        </p>
 
-      <input
-        placeholder="Price"
-        value={price}
-        onChange={(e) => setPrice(e.target.value)}
-        style={inputStyle}
-      />
+        <input
+          placeholder="Product Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          style={inputStyle}
+        />
 
-      <input
-        placeholder="Category (Bracelet, Ring...)"
-        value={category}
-        onChange={(e) => setCategory(e.target.value)}
-        style={inputStyle}
-      />
+        <input
+          placeholder="Price"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          style={inputStyle}
+        />
 
-      <input
-        placeholder="Image URL"
-        value={image}
-        onChange={(e) => setImage(e.target.value)}
-        style={inputStyle}
-      />
+        <input
+          placeholder="Category (Bracelet, Ring, Necklace...)"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          style={inputStyle}
+        />
 
-      <textarea
-        placeholder="Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        style={{ ...inputStyle, height: 100 }}
-      />
+        <input
+          placeholder="Image URL"
+          value={image}
+          onChange={(e) => setImage(e.target.value)}
+          style={inputStyle}
+        />
 
-      <button onClick={addProduct} style={buttonStyle}>
-        {loading ? 'Adding...' : 'Add Product'}
-      </button>
+        <textarea
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          style={{ ...inputStyle, height: 110, resize: 'vertical' }}
+        />
 
-      <h2 style={{ marginTop: 40 }}>Your Products</h2>
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          <button onClick={saveProduct} style={buttonStyle}>
+            {loading ? 'Saving...' : editingId !== null ? 'Update Product' : 'Add Product'}
+          </button>
 
-      <div style={{ display: 'grid', gap: 16, marginTop: 20 }}>
-        {products.map((product) => (
-          <div
-            key={product.id}
-            style={{
-              border: '1px solid #ddd',
-              borderRadius: 12,
-              padding: 16,
-              display: 'flex',
-              gap: 16,
-              alignItems: 'center',
-            }}
-          >
-            <img
-              src={product.image_url}
-              alt={product.name}
-              style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 10 }}
-            />
-
-            <div style={{ flex: 1 }}>
-              <h3 style={{ margin: '0 0 8px' }}>{product.name}</h3>
-              <p style={{ margin: '0 0 4px' }}>{product.category}</p>
-              <p style={{ margin: 0, fontWeight: 'bold' }}>₦{product.price}</p>
-            </div>
-
+          {editingId !== null && (
             <button
-              onClick={() => deleteProduct(product.id)}
+              onClick={resetForm}
               style={{
-                background: 'red',
-                color: 'white',
-                border: 'none',
-                borderRadius: 8,
-                padding: '10px 14px',
-                cursor: 'pointer',
+                ...buttonStyle,
+                background: '#f3f4f6',
+                color: '#111827',
               }}
             >
-              Delete
+              Cancel Edit
             </button>
+          )}
+        </div>
+      </div>
+
+      <div>
+        <h2 style={{ marginBottom: 16 }}>All Products</h2>
+
+        {products.length === 0 ? (
+          <div
+            style={{
+              background: 'white',
+              border: '1px dashed #d1d5db',
+              borderRadius: 18,
+              padding: 24,
+              textAlign: 'center',
+              color: '#6b7280',
+            }}
+          >
+            No products yet.
           </div>
-        ))}
+        ) : (
+          <div style={{ display: 'grid', gap: 16 }}>
+            {products.map((product) => (
+              <div
+                key={product.id}
+                style={{
+                  border: '1px solid #e5e7eb',
+                  borderRadius: 18,
+                  padding: 16,
+                  display: 'flex',
+                  gap: 16,
+                  alignItems: 'center',
+                  background: 'white',
+                  boxShadow: '0 6px 18px rgba(0,0,0,0.03)',
+                  position: 'relative',
+                }}
+              >
+                <img
+                  src={
+                    product.image_url ||
+                    'https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?auto=format&fit=crop&w=800&q=80'
+                  }
+                  alt={product.name}
+                  style={{
+                    width: 90,
+                    height: 90,
+                    objectFit: 'cover',
+                    borderRadius: 14,
+                    flexShrink: 0,
+                  }}
+                />
+
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <h3 style={{ margin: '0 0 6px' }}>{product.name}</h3>
+                  <p style={{ margin: '0 0 6px', color: '#6b7280' }}>{product.category}</p>
+                  <p style={{ margin: '0 0 6px', fontWeight: 700 }}>₦{product.price}</p>
+                  <p
+                    style={{
+                      margin: 0,
+                      color: '#4b5563',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    }}
+                  >
+                    {product.description}
+                  </p>
+                </div>
+
+                <div style={{ position: 'relative', alignSelf: 'flex-start' }}>
+                  <button
+                    onClick={() =>
+                      setOpenMenuId(openMenuId === product.id ? null : product.id)
+                    }
+                    style={menuButtonStyle}
+                  >
+                    ⋮
+                  </button>
+
+                  {openMenuId === product.id && (
+                    <div style={menuBoxStyle}>
+                      <button
+                        onClick={() => startEdit(product)}
+                        style={menuItemStyle}
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        onClick={() => deleteProduct(product.id)}
+                        style={{ ...menuItemStyle, color: '#dc2626' }}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </main>
   );
@@ -175,17 +326,51 @@ const inputStyle = {
   padding: 12,
   marginBottom: 12,
   borderRadius: 10,
-  border: '1px solid #ccc',
+  border: '1px solid #d1d5db',
   boxSizing: 'border-box' as const,
+  fontSize: 15,
 };
 
 const buttonStyle = {
-  width: '100%',
-  padding: 14,
+  padding: '12px 18px',
   background: 'black',
   color: 'white',
   borderRadius: 10,
   border: 'none',
-  fontWeight: 'bold',
+  fontWeight: 'bold' as const,
   cursor: 'pointer',
+};
+
+const menuButtonStyle = {
+  width: 38,
+  height: 38,
+  borderRadius: 10,
+  border: '1px solid #e5e7eb',
+  background: 'white',
+  cursor: 'pointer',
+  fontSize: 20,
+  lineHeight: 1,
+};
+
+const menuBoxStyle = {
+  position: 'absolute' as const,
+  top: 44,
+  right: 0,
+  background: 'white',
+  border: '1px solid #e5e7eb',
+  borderRadius: 12,
+  boxShadow: '0 10px 24px rgba(0,0,0,0.08)',
+  minWidth: 120,
+  overflow: 'hidden',
+  zIndex: 20,
+};
+
+const menuItemStyle = {
+  width: '100%',
+  padding: '12px 14px',
+  border: 'none',
+  background: 'white',
+  textAlign: 'left' as const,
+  cursor: 'pointer',
+  fontSize: 14,
 };
