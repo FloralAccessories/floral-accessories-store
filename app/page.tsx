@@ -13,8 +13,8 @@ export default function Home() {
 
   return (
     <div className="bg-[#faf9f7] text-[#1a1a1a]">
-      
-      {/* HERO SECTION */}
+
+      {/* HERO */}
       <section className="flex flex-col md:flex-row items-center justify-between px-6 md:px-20 py-20">
         
         <div className="max-w-xl">
@@ -40,7 +40,7 @@ export default function Home() {
         />
       </section>
 
-      {/* FEATURED STRIP */}
+      {/* IMAGE STRIP */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-4 px-6 md:px-20 pb-16">
         {[
           "https://images.unsplash.com/photo-1589128777073-263566ae5e4d",
@@ -52,7 +52,7 @@ export default function Home() {
         ))}
       </section>
 
-      {/* COLLECTION */}
+      {/* PRODUCTS */}
       <section id="collection" className="px-6 md:px-20 pb-20">
         <h2 className="text-3xl font-semibold mb-10">Our Collection</h2>
 
@@ -84,7 +84,7 @@ export default function Home() {
                   </p>
 
                   <a
-                    href={`https://wa.me/234XXXXXXXXXX?text=Hi, I want to order ${product.name}`}
+                    href={`https://wa.me/2348034485846?text=Hi, I'm interested in ${product.name}`}
                     target="_blank"
                     className="block text-center bg-black text-white py-2 rounded-full hover:bg-gray-800"
                   >
@@ -107,10 +107,20 @@ export default function Home() {
         </p>
       </section>
 
+      {/* FLOATING WHATSAPP BUTTON */}
+      <a
+        href="https://wa.me/2348034485846?text=Hi, I want to make an enquiry about your jewelry"
+        target="_blank"
+        className="fixed bottom-6 right-6 bg-green-500 text-white px-5 py-3 rounded-full shadow-lg hover:bg-green-600"
+      >
+        💬 Chat on WhatsApp
+      </a>
+
       {/* FOOTER */}
       <footer className="text-center text-sm text-gray-500 py-6">
         © 2026 Floral Accessories. All rights reserved.
       </footer>
+
     </div>
   );
 }
