@@ -13,16 +13,21 @@ type Product = {
   in_stock: boolean;
 };
 
+const WHATSAPP_NUMBER = '2348034485846';
+
 export default function Page() {
   const [products, setProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
   async function fetchProducts() {
+    setLoading(true);
+
     const { data, error } = await supabase
       .from('products')
       .select('*')
@@ -30,20 +35,23 @@ export default function Page() {
 
     if (error) {
       console.error('Error fetching products:', error.message);
+      setProducts([]);
+      setLoading(false);
       return;
     }
 
     setProducts(data || []);
+    setLoading(false);
   }
 
   const categories = useMemo(() => {
-    return ['All', ...new Set(products.map((product) => product.category))];
+    return ['All', ...new Set(products.map((product) => product.category).filter(Boolean))];
   }, [products]);
 
   const visibleProducts = useMemo(() => {
     return products.filter((product) => {
       const matchesSearch = product.name
-        .toLowerCase()
+        ?.toLowerCase()
         .includes(search.toLowerCase());
 
       const matchesCategory =
@@ -55,6 +63,11 @@ export default function Page() {
 
   function formatPrice(price: number) {
     return `₦${Number(price).toLocaleString()}`;
+  }
+
+  function getWhatsAppLink(product: Product) {
+    const message = `Hello FLORAL ACCESSORIES, I want to order ${product.name} for ${formatPrice(product.price)}.`;
+    return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
   }
 
   return (
@@ -71,93 +84,84 @@ export default function Page() {
           maxWidth: 1200,
           margin: '0 auto',
           padding: '70px 20px 40px',
-          display: 'grid',
-          gridTemplateColumns: '1.1fr 1fr',
-          gap: 30,
-          alignItems: 'center',
         }}
       >
-        <div>
-          <p
-            style={{
-              textTransform: 'uppercase',
-              letterSpacing: 2,
-              color: '#9ca3af',
-              fontSize: 13,
-              marginBottom: 10,
-            }}
-          >
-            Floral Accessories
-          </p>
-
-          <h1
-            style={{
-              fontSize: 54,
-              lineHeight: 1.1,
-              margin: '0 0 16px',
-            }}
-          >
-            Jewelry that makes every outfit shine
-          </h1>
-
-          <p
-            style={{
-              fontSize: 18,
-              lineHeight: 1.7,
-              color: '#4b5563',
-              maxWidth: 540,
-              marginBottom: 24,
-            }}
-          >
-            Discover elegant pieces for everyday beauty and special moments.
-            Your products from Supabase will appear here automatically.
-          </p>
-
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <button
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1.1fr 1fr',
+            gap: 30,
+            alignItems: 'center',
+          }}
+        >
+          <div>
+            <p
               style={{
+                textTransform: 'uppercase',
+                letterSpacing: 2,
+                color: '#9ca3af',
+                fontSize: 13,
+                marginBottom: 10,
+              }}
+            >
+              Floral Accessories
+            </p>
+
+            <h1
+              style={{
+                fontSize: 54,
+                lineHeight: 1.1,
+                margin: '0 0 16px',
+              }}
+            >
+              Jewelry that makes every outfit shine
+            </h1>
+
+            <p
+              style={{
+                fontSize: 18,
+                lineHeight: 1.7,
+                color: '#4b5563',
+                maxWidth: 540,
+                marginBottom: 24,
+              }}
+            >
+              Discover elegant bracelets, necklaces, earrings, watches, rings, and
+              chains for your everyday style and special moments.
+            </p>
+
+            <a
+              href="#collection"
+              style={{
+                display: 'inline-block',
                 background: '#111111',
                 color: 'white',
-                border: 'none',
                 borderRadius: 16,
                 padding: '14px 22px',
                 fontWeight: 700,
-                cursor: 'pointer',
+                textDecoration: 'none',
               }}
             >
               Shop Collection
-            </button>
-
-            <button
-              style={{
-                background: 'white',
-                color: '#111111',
-                border: '1px solid #d1d5db',
-                borderRadius: 16,
-                padding: '14px 22px',
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
-            >
-              View New Arrivals
-            </button>
+            </a>
           </div>
-        </div>
 
-        <img
-          src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1200&q=80"
-          alt="Jewelry display"
-          style={{
-            width: '100%',
-            height: 430,
-            objectFit: 'cover',
-            borderRadius: 28,
-            boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
-          }}
-        />
+          <img
+            src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1200&q=80"
+            alt="Jewelry display"
+            style={{
+              width: '100%',
+              height: 430,
+              objectFit: 'cover',
+              borderRadius: 28,
+              boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
+            }}
+          />
+        </div>
       </section>
 
       <section
+        id="collection"
         style={{
           maxWidth: 1200,
           margin: '0 auto',
@@ -223,7 +227,19 @@ export default function Page() {
           </select>
         </div>
 
-        {visibleProducts.length === 0 ? (
+        {loading ? (
+          <div
+            style={{
+              background: 'white',
+              border: '1px dashed #d1d5db',
+              borderRadius: 24,
+              padding: 36,
+              textAlign: 'center',
+            }}
+          >
+            <p style={{ margin: 0, color: '#6b7280' }}>Loading products...</p>
+          </div>
+        ) : visibleProducts.length === 0 ? (
           <div
             style={{
               background: 'white',
@@ -299,11 +315,31 @@ export default function Page() {
                     style={{
                       fontWeight: 700,
                       fontSize: 18,
-                      margin: 0,
+                      margin: '0 0 14px',
                     }}
                   >
                     {formatPrice(product.price)}
                   </p>
+
+                  <a
+                    href={getWhatsAppLink(product)}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{
+                      display: 'inline-block',
+                      width: '100%',
+                      textAlign: 'center',
+                      background: '#111111',
+                      color: 'white',
+                      borderRadius: 14,
+                      padding: '12px 14px',
+                      fontWeight: 700,
+                      textDecoration: 'none',
+                      boxSizing: 'border-box',
+                    }}
+                  >
+                    Order Now on WhatsApp
+                  </a>
                 </div>
               </div>
             ))}
