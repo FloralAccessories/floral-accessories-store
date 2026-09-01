@@ -4,7 +4,7 @@ import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../../lib/supabase';
 
-const ADMIN_EMAIL = 'floralaccessories35@gmail.com';
+const ADMIN_EMAIL = 'bolaandolusegun16@gmail.com';
 
 export default function AdminLoginPage() {
   const router = useRouter();
