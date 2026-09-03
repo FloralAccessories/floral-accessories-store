@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabase';
 
 type Product={id:number;name:string;price:number;category:string;image_url:string;description:string;in_stock:boolean};
-const ADMIN_EMAIL='bolaandolusegun16@gmail.com';
+const ADMIN_EMAIL='floraaccessories35@gmail.com';
 const BUCKET='products';
 
 export default function AdminPage(){
