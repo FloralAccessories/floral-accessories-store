@@ -1,0 +1,16 @@
+const fs = require('fs');
+const path = require('path');
+const file = path.join(process.cwd(), 'app', 'page.tsx');
+let s = fs.readFileSync(file, 'utf8');
+s = s.replace("[open,setOpen]=useState(false),[payment,setPayment]=useState(false),[loading,setLoading]=useState(true);", "[open,setOpen]=useState(false),[payment,setPayment]=useState(false),[loading,setLoading]=useState(true),[copied,setCopied]=useState(false);");
+s = s.replace("const sendPaidOrder=()=>wa(`Hello Floral Accessories Store, I have made payment for my order.", "const copyAccount=async()=>{try{await navigator.clipboard.writeText(BANK.accountNumber);setCopied(true);setTimeout(()=>setCopied(false),1800)}catch{}};\n const sendPaidOrder=()=>wa(`Hello Floral Accessories Store, I have made payment for my order.");
+const oldAccount = "<div><span>Account Number</span><b style={s.account}>{BANK.accountNumber}</b></div>";
+const newAccount = "<div style={s.accountRow}><div><span>Account Number</span><b style={s.account}>{BANK.accountNumber}</b></div><button type=\"button\" style={s.copyBtn} onClick={copyAccount}>{copied?'Copied ✓':'Copy'}</button></div>";
+if (s.includes(oldAccount)) s = s.replace(oldAccount, newAccount);
+s = s.replace("fa-payment{padding:22px!important;margin:12px!important}", "fa-payment{padding:22px!important;margin:12px!important;max-height:calc(100vh - 24px);overflow-y:auto}");
+s = s.replace("collection:{maxWidth:1180,margin:'auto',padding:'20px 20px 90px'}", "collection:{maxWidth:1180,margin:'auto',padding:'45px 20px 110px'}");
+s = s.replace("grid:{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(230px,1fr))',gap:22}", "grid:{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(230px,1fr))',gap:28}");
+s = s.replace("body:{padding:18}", "body:{padding:20}");
+s = s.replace("bankBox:{", "accountRow:{display:'flex',alignItems:'center',justifyContent:'space-between',gap:14,padding:'14px 0',borderTop:'1px solid #eadbd5'},copyBtn:{border:'1px solid #6e1f2b',background:'#fff',color:'#6e1f2b',padding:'9px 13px',borderRadius:10,cursor:'pointer',fontWeight:700,whiteSpace:'nowrap'},bankBox:{");
+fs.writeFileSync(file, s);
+console.log('Floral Accessories storefront refinement applied.');
