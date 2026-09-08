@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/refine-storefront.js && node scripts/add-chat.js && node scripts/fix-jsx-comments.js && next build",
+    "build": "node scripts/refine-storefront.js && node scripts/add-chat.js && node scripts/fix-jsx-comments.js && node scripts/upgrade-welcome.js && next build",
     "start": "next start"
   },
   "dependencies": {
