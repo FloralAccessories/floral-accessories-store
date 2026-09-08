@@ -12,9 +12,16 @@ s = s.split('\n').filter(line => {
   }
   return true;
 }).join('\n');
+const removeExtra = (text, token) => {
+  let first = text.indexOf(token);
+  if (first < 0) return text;
+  const second = text.indexOf(token, first + token.length);
+  if (second < 0) return text;
+  return text.slice(0, second) + text.slice(second + token.length);
+};
 const accountRow = "accountRow:{display:'flex',alignItems:'center',justifyContent:'space-between',gap:14,padding:'14px 0',borderTop:'1px solid #eadbd5'},";
 const copyBtn = "copyBtn:{border:'1px solid #6e1f2b',background:'#fff',color:'#6e1f2b',padding:'9px 13px',borderRadius:10,cursor:'pointer',fontWeight:700,whiteSpace:'nowrap'},";
-while ((s.match(new RegExp(accountRow.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&'), 'g')) || []).length > 1) s = s.replace(accountRow, '');
-while ((s.match(new RegExp(copyBtn.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&'), 'g')) || []).length > 1) s = s.replace(copyBtn, '');
+s = removeExtra(s, accountRow);
+s = removeExtra(s, copyBtn);
 fs.writeFileSync(file, s);
 console.log('Fixed injected JSX markers and duplicate storefront patches.');
