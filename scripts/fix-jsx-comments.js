@@ -4,5 +4,7 @@ const file = path.join(process.cwd(), 'app', 'page.tsx');
 let s = fs.readFileSync(file, 'utf8');
 s = s.replace('<!-- FLORAL_WELCOME_ASSISTANT -->', '{/* FLORAL_WELCOME_ASSISTANT */}');
 s = s.replace('<!-- FLORAL_CHAT_ASSISTANT -->', '{/* FLORAL_CHAT_ASSISTANT */}');
+const copy = "const copyAccount=async()=>{try{await navigator.clipboard.writeText(BANK.accountNumber);setCopied(true);setTimeout(()=>setCopied(false),1800)}catch{}};";
+s = s.replace(copy + '\n' + copy, copy);
 fs.writeFileSync(file, s);
-console.log('Fixed injected JSX markers.');
+console.log('Fixed injected JSX markers and duplicate storefront patches.');
