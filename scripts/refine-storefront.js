@@ -2,15 +2,34 @@ const fs = require('fs');
 const path = require('path');
 const file = path.join(process.cwd(), 'app', 'page.tsx');
 let s = fs.readFileSync(file, 'utf8');
-s = s.replace("[open,setOpen]=useState(false),[payment,setPayment]=useState(false),[loading,setLoading]=useState(true);", "[open,setOpen]=useState(false),[payment,setPayment]=useState(false),[loading,setLoading]=useState(true),[copied,setCopied]=useState(false);");
-s = s.replace("const sendPaidOrder=()=>wa(`Hello Floral Accessories Store, I have made payment for my order.", "const copyAccount=async()=>{try{await navigator.clipboard.writeText(BANK.accountNumber);setCopied(true);setTimeout(()=>setCopied(false),1800)}catch{}};\n const sendPaidOrder=()=>wa(`Hello Floral Accessories Store, I have made payment for my order.");
+
+s = s.replace(
+  "[open,setOpen]=useState(false),[payment,setPayment]=useState(false),[loading,setLoading]=useState(true),[copied,setCopied]=useState(false);",
+  "[open,setOpen]=useState(false),[payment,setPayment]=useState(false),[loading,setLoading]=useState(true),[copied,setCopied]=useState(false),[welcome,setWelcome]=useState(true);"
+);
+
+s = s.replace(
+  "const sendPaidOrder=()=>wa(`Hello Floral Accessories Store, I have made payment for my order.",
+  "const copyAccount=async()=>{try{await navigator.clipboard.writeText(BANK.accountNumber);setCopied(true);setTimeout(()=>setCopied(false),1800)}catch{}};\n const sendPaidOrder=()=>wa(`Hello Floral Accessories Store, I have made payment for my order."
+);
+
 const oldAccount = "<div><span>Account Number</span><b style={s.account}>{BANK.accountNumber}</b></div>";
 const newAccount = "<div style={s.accountRow}><div><span>Account Number</span><b style={s.account}>{BANK.accountNumber}</b></div><button type=\"button\" style={s.copyBtn} onClick={copyAccount}>{copied?'Copied ✓':'Copy'}</button></div>";
 if (s.includes(oldAccount)) s = s.replace(oldAccount, newAccount);
+
 s = s.replace("fa-payment{padding:22px!important;margin:12px!important}", "fa-payment{padding:22px!important;margin:12px!important;max-height:calc(100vh - 24px);overflow-y:auto}");
 s = s.replace("collection:{maxWidth:1180,margin:'auto',padding:'20px 20px 90px'}", "collection:{maxWidth:1180,margin:'auto',padding:'45px 20px 110px'}");
 s = s.replace("grid:{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(230px,1fr))',gap:22}", "grid:{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(230px,1fr))',gap:28}");
 s = s.replace("body:{padding:18}", "body:{padding:20}");
 s = s.replace("bankBox:{", "accountRow:{display:'flex',alignItems:'center',justifyContent:'space-between',gap:14,padding:'14px 0',borderTop:'1px solid #eadbd5'},copyBtn:{border:'1px solid #6e1f2b',background:'#fff',color:'#6e1f2b',padding:'9px 13px',borderRadius:10,cursor:'pointer',fontWeight:700,whiteSpace:'nowrap'},bankBox:{");
+
+if (!s.includes('fa-welcome-character')) {
+  const welcomeStyles = `@keyframes faWelcomeFloat{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-9px) rotate(1deg)}}@keyframes faWelcomeWave{0%,100%{transform:rotate(0deg)}15%{transform:rotate(15deg)}30%{transform:rotate(-9deg)}45%{transform:rotate(13deg)}60%{transform:rotate(-4deg)}75%{transform:rotate(7deg)}}@keyframes faWelcomeBlink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.08)}}@keyframes faWelcomePop{0%{opacity:0;transform:translateY(10px) scale(.94)}100%{opacity:1;transform:translateY(0) scale(1)}}.fa-welcome-character{position:fixed;left:18px;bottom:18px;z-index:48;display:flex;flex-direction:column;align-items:flex-start;gap:8px;pointer-events:none}.fa-welcome-bubble{position:relative;max-width:250px;padding:13px 38px 13px 15px;border:1px solid rgba(110,31,43,.16);border-radius:18px;background:rgba(255,255,255,.97);box-shadow:0 14px 35px rgba(40,20,20,.16);color:#32151b;font:600 14px/1.35 Arial,sans-serif;animation:faWelcomePop .5s ease-out both;pointer-events:auto}.fa-welcome-bubble small{display:block;margin-top:4px;color:#75535a;font-weight:500}.fa-welcome-close{position:absolute;right:7px;top:7px;width:25px;height:25px;border:0;border-radius:50%;background:#f5e8e5;color:#6e1f2b;font-size:17px;line-height:25px;cursor:pointer}.fa-welcome-avatar{width:116px;height:150px;filter:drop-shadow(0 10px 12px rgba(60,20,30,.15));animation:faWelcomeFloat 3.2s ease-in-out infinite;transform-origin:50% 100%;pointer-events:auto;cursor:pointer}.fa-welcome-avatar .fa-wave-arm{transform-box:fill-box;transform-origin:100% 20%;animation:faWelcomeWave 2.5s ease-in-out infinite}.fa-welcome-avatar .fa-eyes{transform-box:fill-box;transform-origin:center;animation:faWelcomeBlink 4.8s ease-in-out infinite}@media(max-width:700px){.fa-welcome-character{left:10px;bottom:10px}.fa-welcome-bubble{max-width:205px;font-size:12px;padding:11px 34px 11px 13px}.fa-welcome-avatar{width:88px;height:116px}}`;
+  s = s.replace("<style jsx global>{`", "<style jsx global>{`" + welcomeStyles);
+
+  const welcomeMarkup = `<div className=\"fa-welcome-character\" aria-label=\"Floral Accessories welcome assistant\">\n   {welcome&&<><div className=\"fa-welcome-bubble\">Welcome to Floral Accessories 💕<small>Beautiful pieces, just for you.</small><button className=\"fa-welcome-close\" aria-label=\"Close welcome message\" onClick={()=>setWelcome(false)}>×</button></div><div className=\"fa-welcome-avatar\" role=\"button\" tabIndex={0} aria-label=\"Floral Accessories assistant\" onClick={()=>setWelcome(false)} onKeyDown={e=>{if(e.key==='Enter'||e.key===' ')setWelcome(false)}}><svg viewBox=\"0 0 140 180\" width=\"100%\" height=\"100%\" aria-hidden=\"true\"><ellipse cx=\"70\" cy=\"169\" rx=\"42\" ry=\"7\" fill=\"#eadbd5\"/><path d=\"M38 163c2-31 10-52 32-55 22 3 30 24 32 55Z\" fill=\"#6e1f2b\"/><path d=\"M43 119c7 9 15 14 27 14s20-5 27-14l7 44H36Z\" fill=\"#8b3042\"/><circle cx=\"70\" cy=\"72\" r=\"29\" fill=\"#f2c5a5\"/><path d=\"M40 73c-5-29 9-48 31-48 25 0 37 21 28 48-6-10-9-23-10-31-11 12-27 17-49 14Z\" fill=\"#342027\"/><path d=\"M44 68c-2 21 5 35 26 35s28-14 26-35c-7 7-16 11-27 11S51 75 44 68Z\" fill=\"#f2c5a5\"/><g className=\"fa-eyes\"><ellipse cx=\"59\" cy=\"73\" rx=\"2.2\" ry=\"3\" fill=\"#32151b\"/><ellipse cx=\"81\" cy=\"73\" rx=\"2.2\" ry=\"3\" fill=\"#32151b\"/></g><path d=\"M64 87q6 5 12 0\" fill=\"none\" stroke=\"#a44a59\" strokeWidth=\"2\" strokeLinecap=\"round\"/><path d=\"M45 117q-16 8-22 24\" fill=\"none\" stroke=\"#f2c5a5\" strokeWidth=\"10\" strokeLinecap=\"round\"/><path className=\"fa-wave-arm\" d=\"M95 119q18-10 23-28\" fill=\"none\" stroke=\"#f2c5a5\" strokeWidth=\"10\" strokeLinecap=\"round\"/><circle cx=\"118\" cy=\"89\" r=\"6\" fill=\"#f2c5a5\"/><circle cx=\"70\" cy=\"110\" r=\"7\" fill=\"#d8aa55\"/><circle cx=\"70\" cy=\"110\" r=\"3\" fill=\"#fff5d8\"/><path d=\"M57 159v10M83 159v10\" stroke=\"#f2c5a5\" strokeWidth=\"9\" strokeLinecap=\"round\"/><path d=\"M51 169h13M76 169h13\" stroke=\"#32151b\" strokeWidth=\"6\" strokeLinecap=\"round\"/></svg></div></>}\n  </div>`;
+  s = s.replace(" </main>;", ` ${welcomeMarkup}\n </main>;`);
+}
+
 fs.writeFileSync(file, s);
-console.log('Floral Accessories storefront refinement applied.');
+console.log('Floral Accessories storefront refinement and welcome assistant applied.');
